@@ -5,6 +5,8 @@ import numpy as np
 matrix=[[5,3,4,4,None],[3,1,2,3,3],[4,3,4,3,5],[3,3,1,5,4],[1,5,5,2,1]]
 
 def calculate_V(m):
+    '''Calculate the matrix V: for each position, 
+    the number of reviews that an item has received is given'''
     V=[]
     for row in np.transpose(m):
         V.append(sum([1 for rating in row if rating is not None]))
@@ -23,6 +25,8 @@ def adjust_matrix(m):
 
 
 def None_cosine_similarity(x:list,y:list,norm_x):
+    '''Calculate the cosine similarity considering 
+    that the matrix has some elements as None'''
     X=[]
     Y=[]
     for i in range(len(x)):
@@ -34,7 +38,9 @@ def None_cosine_similarity(x:list,y:list,norm_x):
     
 
 
-def matriz_de_similitud(m):
+def similarity_matrix(m):
+    ''' Calculate the similarity between all pairs of rows in the matrix '''
+
     result=[]
     for i in range(len(m)):
         norm=np.linalg.norm([value for value in m[i] if value is not None])
@@ -43,12 +49,15 @@ def matriz_de_similitud(m):
 
 
 def calculate_review(item,V,V_mean):
+    '''Calculate the item's popularity based on the number of reviews'''
     return 1/2 + (V[item]-V_mean)/max(V)
 
 def calculate_rating(initial_matrix,user, item):
+    '''Calculate the normalized rating from user to item'''
     return 1/2 + (initial_matrix[user][item]-np.mean(initial_matrix[user]))/5
 
 def calculate_UI_matrix(initial_matrix, II_matrix):
+    '''Calculate the relationship matrix between users and items'''
     V=calculate_V(initial_matrix)
     v_mean=np.mean(V)
     result=np.zeros(len(initial_matrix),len(initial_matrix[0]))
@@ -65,8 +74,8 @@ def calculate_UI_matrix(initial_matrix, II_matrix):
 
 #m_adjusted=adjust_matrix(matrix)
 m_adjusted=matrix
-UU_matrix= matriz_de_similitud(m_adjusted)
-II_matrix= np.transpose(matriz_de_similitud(np.transpose(m_adjusted)))
+UU_matrix= similarity_matrix(m_adjusted)
+II_matrix= np.transpose(similarity_matrix(np.transpose(m_adjusted)))
 UI_matrix=calculate_UI_matrix(m_adjusted,II_matrix)
 
 
