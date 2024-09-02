@@ -49,7 +49,7 @@ def create_category_dict(csv_name):
     category_dict = {category: i  for i, category in enumerate(sorted(categories_set))}
     return category_dict
 
-category_dict=create_category_dict('../datasets/tourism_with_id.csv')
+category_dict=create_category_dict('datasets/tourism_with_id.csv')
 
 def build_rating_matrix(csv_name):
     '''
@@ -74,7 +74,7 @@ def build_rating_matrix(csv_name):
         matriz[user_id-1][place_id-1] = place_rating
     return matriz
 
-rating_matrix=build_rating_matrix('../datasets/tourism_rating.csv')
+rating_matrix=build_rating_matrix('datasets/tourism_rating.csv')
     
 
 def build_place_category_price(csv_name):
@@ -94,7 +94,7 @@ def build_place_category_price(csv_name):
             place_dict[int(row['Place_Id'])-1] = [category_dict[row['Category']], int(row['Price'])]
 
     return place_dict
-place_dict=build_place_category_price('../datasets/tourism_with_id.csv')
+place_dict=build_place_category_price('datasets/tourism_with_id.csv')
 
 user_category_frecuency=np.zeros((len(rating_matrix),len(category_dict)))
 '''matrix that represents how much an user visits attractions of a category'''
@@ -106,7 +106,7 @@ user_category_rating=np.zeros((len(rating_matrix),len(category_dict)))
 '''matrix that represents how much an user rates attractions of a category at mean'''
 user_category_count=0
 
-users_age=get_users_age('../datasets/user.csv')
+users_age=get_users_age('datasets/user.csv')
 max_age=max(users_age)
 age_category_frecuency=np.zeros((calculate_age_range(max_age)+1,len(category_dict)))
 '''matrix that represents how much users in an age range visits attractions of a category'''
