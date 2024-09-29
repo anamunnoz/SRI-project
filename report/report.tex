@@ -3,6 +3,10 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{enumitem}
+\renewcommand{\abstractname}{Resumen.}
+\renewcommand{\keywordname}{\textbf{Palabras clave:}}
+
+
 \begin{document}
 %
 \title{Sistema de recomendación híbrido}
@@ -18,9 +22,10 @@
 \maketitle            
 %
 \begin{abstract}
+    
  En este trabajo, se presenta un sistema de recomendación híbrido diseñado para sugerir destinos turísticos personalizados en ciudades desconocidas para los usuarios. El sistema integra diversos enfoques, combinando técnicas de análisis de grafos, reglas basadas en conocimiento y métodos colaborativos para superar las limitaciones de los sistemas de recomendación tradicionales. El modelo propuesto unifica la relación entre usuarios y ubicaciones, usuarios entre sí, y entre las propias ubicaciones en un marco que mejora relevancia de las recomendaciones. Se emplea el método de Random Walk with Restart (RWR) para optimizar las recomendaciones considerando las interacciones complejas dentro de un grafo ponderado. Los experimentos realizados con un conjunto de datos del mundo real demuestran la capacidad del sistema para ofrecer recomendaciones valiosas, destacando su eficacia a pesar de la baja precisión en algunos casos. El enfoque equilibrado entre simplicidad y funcionalidad del sistema lo convierte en una herramienta útil y accesible para la planificación de viajes.
 
-\keywords{Sistema de recomendación híbrido \and Random Walk with Restart \and Recomendación de viajes \and Análisis de grafos \andPersonalización de recomendaciones \and Sistema basado en conocimiento.}
+\keywords{Sistema de recomendación híbrido \and Random Walk with Restart \and \  Recomendación de viajes \and \  Análisis de grafos \and \ Personalización de recomendaciones \and Sistema basado en conocimiento.}
 \end{abstract}
 
 %
@@ -30,46 +35,56 @@
 En el contexto actual de la personalización digital, los sistemas de recomendación híbridos combinan diversas técnicas para ofrecer recomendaciones más precisas y relevantes. La construcción de sistemas híbridos[1] que integren las fortalezas de diferentes algoritmos y modelos se ha convertido en el objetivo de investigaciones recientes para superar algunas de las deficiencias y problemas de los métodos individuales. Estos sistemas, aunque más complejos y exigentes en términos de recursos computacionales, presentan oportunidades significativas para mejorar la calidad de las recomendaciones.
 
 \subsection{Actualidad y sistema propuesto}
-La recomendación de ubicación para los viajeros basada en los datos aportados por los usuarios ha atraído mucho interés de investigación recientemente. Sin embargo, la mayoría de los estudios previos se centran en un aspecto de las relaciones entre los usuarios y las ubicaciones, o hacen una combinación lineal aproximada de las relaciones. 
+La recomendación personalizada de viajes ha tenido diversos enfoques en su investigación, destacando sistemas como Cyberguide[2] y TripTip[3], que utilizan la ubicación del usuario, su historial y similitudes entre lugares visitados para sugerir destinos. Otros estudios han explorado datos generados por usuarios, como fotos geoetiquetadas[4] y check-ins[5][6], para mejorar las recomendaciones. Sin embargo, muchas soluciones dependen de información de expertos, que puede ser limitada y desactualizada.
 
 Se presenta un sistema de recomendación híbrido de viajes personalizado que aborda algunas de las deficiencias anteriores y recomienda a los usuarios dónde ir en una ciudad desconocida. Construye un modelo que unifica la relación de ubicación de usuario, la relación usuario-usuario y la relación ubicación-ubicación en un solo marco. Además para realizar la recomendación se tiene en cuenta las preferencias de los usuarios y las características de las locaciones. 
 
 \section{Preliminares}
 
-\subsection{Formulación del problema}
-En los sistemas de recomendación[1] se deonta el conjunto de usuarios como  $U =  \{u_1, u_2, ... ,u_{|U|}\}$ y el conjunto de locaciones como $V =  \{v_1, v_2, ... ,v_{|V|}\}$. El objetivo de este sistema es predecir los lugares que un usuario debería visitar, en una ciudad en específico, a partir de un registro de valoraciones de una comunidad de usuarios a estos lugares y las características de los mismos.
+En esta sección, se presentan los conceptos fundamentales y las bases teóricas necesarias para comprender el enfoque propuesto en este trabajo.
 
-\subsection{Recomendación personalizada de viajes}
-La recomendación personalizada de viajes ha tenido diversos enfoques en su investigación, destacando cómo sistemas como Cyberguide[4] y TripTip[5] utilizan la ubicación del usuario, su historial y similitudes entre lugares visitados para sugerir destinos. Otros estudios han explorado datos generados por usuarios, como fotos geoetiquetadas[6] y check-ins[7][8], para mejorar las recomendaciones. Sin embargo, muchas soluciones dependen de información de expertos, que puede ser limitada y desactualizada. Se quiere mejorar el enfoque que integra múltiples relaciones entre usuarios y ubicaciones, para ofrecer recomendaciones de mayor calidad[2].
+\subsection{Formulación del problema}
+En los sistemas de recomendación[1] se denota el conjunto de usuarios como  $U =  \{u_1, u_2, ... ,u_m\}$ y el conjunto de locaciones como $V =  \{v_1, v_2, ... ,v_n\}$, donde m = |U| y n = |V|. El objetivo de este sistema es predecir los lugares que un usuario debería visitar, en una ciudad en específico, a partir de un registro de valoraciones de una comunidad de usuarios a estos lugares y las características de los mismos.
 
 \subsection{Recomendación basada en conocimiento}
 
-Un sistema de recomendación basado en conocimiento[1] es una tecnología diseñada para sugerir productos, servicios o información a los usuarios en función de su conocimiento explícito sobre sus preferencias, necesidades y características. Este tipo de sistema utiliza un conjunto estructurado de reglas y criterios que se alimentan de información detallada sobre los productos o servicios y las necesidades específicas del usuario. 
+Un sistema de recomendación basado en conocimiento[1] es una tecnología di-\\ señada para sugerir productos, servicios o información a los usuarios en función de su conocimiento explícito sobre sus preferencias, necesidades y características. Este tipo de sistema utiliza un conjunto estructurado de reglas y criterios que se alimentan de información detallada sobre los productos o servicios y las necesidades específicas del usuario. 
 
-Primeramente el sistema posee un conjunto de reglas simples para incrementar la relevancia de una localidad para un usuario, por ejemplo: 
+Primeramente, el sistema posee un conjunto de reglas simples para incrementar la relevancia de una localidad para un usuario, por ejemplo: 
 
 \begin{itemize}[left=1.3em]
-    \item si el usuario visita con frecuencia localidades de cierta categoría aumentar la relevancia de esta en la selección de localidades
-    \item si el usuario prefiere lugares de alto o bajo presupuesto  recomendar localidades en consecuencia
-    \item si el usuario pertenece a cierto grupo de edad recomendarle lugares de categoría con buenas valoraciones de ese grupo
+    \item si el usuario visita con frecuencia localidades de cierta categoría, aumentar la relevancia de esta en la selección de localidades.
+    \item si el usuario prefiere lugares de alto o bajo presupuesto,  recomendar loca- \\ lidades en consecuencia.
+    \item si el usuario pertenece a cierto grupo de edad, recomendarle lugares de categoría con buenas valoraciones de ese grupo.
 \end{itemize}
 
 \subsection{\textit{Random Walk with Restart}}
-El método Random Walk with Restart \textbf{(RWR)}[9] se utiliza en diversas áreas, como la recomendación social y de lugares, al calcular la relevancia entre nodos en un grafo ponderado. \textbf{(RWR)} captura la estructura global del grafo y las relaciones entre nodos. Se destacan estudios que usan RWR para recomendar música y lugares, aunque con limitaciones como no considerar todas las relaciones posibles. 
+El método Random Walk with Restart \textbf{(RWR)}[7] se utiliza en diversas áreas, como la recomendación social y de lugares, al calcular la relevancia entre nodos en un grafo ponderado. \textbf{RWR} captura la estructura global del grafo y las relaciones entre nodos. Se destacan estudios que usan RWR para recomendar música[8] y lugares[9], aunque con limitaciones como no considerar todas las relaciones posibles. 
 
 \section{Arquitectura del sistema}
-El sistema de recomendación utiliza un enfoque híbrido combinando reglas sencillas y análisis de grafos para personalizar las recomendaciones de localidades. Primero, el sistema aplica reglas basadas en las características de los usuarios y sus valoraciones para identificar localidades de interés. Luego, construye un grafo que representa las relaciones entre usuarios y localidades, así como entre los usuarios y las localidades entre sí (modelo 3R [2]). Este grafo se emplea para enriquecer el análisis de las recomendaciones empleando RWR, capturando interacciones complejas y patrones adicionales. Finalmente, se generan recomendaciones personalizadas para cada usuario, integrando tanto las sugerencias basadas en reglas como el análisis del grafo para ofrecer opciones más precisas y relevantes.
+El sistema de recomendación utiliza un enfoque híbrido combinando reglas sencillas y análisis de grafos para personalizar las recomendaciones de localidades. Primero, el sistema aplica reglas basadas en las características de los usuarios \\ y sus valoraciones para identificar localidades de interés. Luego, construye un grafo que representa las relaciones entre usuarios y localidades, así como entre los usuarios y las localidades entre sí (modelo 3R [10]). Este grafo se emplea para enriquecer el análisis de las recomendaciones empleando RWR, capturando interacciones complejas y patrones adicionales. Finalmente, se generan recomendaciones personalizadas para cada usuario, integrando tanto las sugerencias \\  basadas en reglas como el análisis del grafo para ofrecer opciones más precisas y relevantes.
 
 \section{Marco de trabajo}
 
+En esta sección, se detallarán los pasos necesarios para la implementación del sistema de recomendación propuesto.
+
 \subsection{Extracción de datos}
-Del conjunto conjunto de datos de entrada se extrae información como edad de los usuarios, preferencias de los grupos de edades con respecto a la categoría y precio de los lugares a visitar. También se extrae las preferencias de los usuarios en base a las valoraciones emitidas por estos.
+Se trabaja con un conjunto de datos que contiene varias atracciones turísticas en 5 ciudades principales de Indonesia \footnote{https://www.kaggle.com/datasets/aprabowo/indonesia-tourism-destination/data}. Este conjunto de datos también consta de 4 archivos:
+\begin{itemize}
+    \item \textit{tourism\_with\_id.csv}: contiene información sobre atracciones turísticas en 5 ciudades principales de Indonesia, con un total de aproximadamente 400.
+    \item \textit{user.csv}: contiene datos ficticios de usuarios para crear funciones de recomendación.
+    \item \textit{tourism\_rating.csv}: contiene 3 columnas: el usuario, el lugar y la calificación otorgada; sirve para crear un sistema de recomendación basado en las calificaciones.
+    \item \textit{package\_tourism.csv}: contiene recomendaciones de lugares cercanos basados en tiempo, costo y calificación.
+\end{itemize}
 
-Para obtener la frecuencia  con que un usuario visita atracciones de cierta categoría (\textbf{u\_freq}) se calcula proporción entre atracciones visitadas de esa categoría por el usuario y el total de atracciones visitadas por el mismo.
 
-Para obtener el promedio de dinero que emplea el usuario en atracciones de una categoría (\textbf{u\_prec}) se calcula el promedio de los precios de las atracciones de esta categoría visitadas por el usuario.
+Del conjunto de datos de entrada se extrae información como edad de los usuarios, preferencias de los grupos de edades con respecto a la categoría y precio de los lugares a visitar. También se extraen las preferencias de los usuarios en base a las valoraciones emitidas por estos.
 
-Para obtener el promedio de valoración que emite el usuario en atracciones de una categoría (\textbf{u\_val}) se calcula el promedio de las valoraciones de las atracciones de esta categoría visitadas por el usuario.
+Para obtener la frecuencia  con que un usuario visita atracciones de cierta categoría (\textbf{u\_freq}), se calcula proporción entre atracciones visitadas de esa categoría por el usuario y el total de atracciones visitadas por el mismo.
+
+Para obtener el promedio de dinero que emplea el usuario en atracciones de una categoría (\textbf{u\_prec}), se calcula el promedio de los precios de las atracciones de esta categoría visitadas por el usuario.
+
+Para obtener el promedio de valoración que emite el usuario en atracciones de una categoría (\textbf{u\_val}), se calcula el promedio de las valoraciones de las atracciones de esta categoría visitadas por el usuario.
 
 Análogamente, se realizan las mismas extracciones de datos para los grupos de edades: \textbf{u\_freq, e\_prec, e\_val}.
 
@@ -84,9 +99,9 @@ donde: $u\_freq_{v}$ representa el calculo de u\_freq para la categoría de v, $
 
 
 \subsection{Análisis colaborativo}
-En esta etapa se construye un modelo que refleja 3 tipos de relaciones, usuario-usuario, usuario-localidad, localidad-localidad usando un enfoque colaborativo. [2][3]
+En esta etapa se construye un modelo que refleja 3 tipos de relaciones: usuario-usuario, usuario-localidad, localidad-localidad usando un enfoque colaborativo. [10][11]
 
-\textbf{Relación Usuario-Usuario}: se define como las relaciones sociales entre usuarios, y se ha utilizado tempranamente en muchos recomendadores. Se calcula como la simulitud de coseno entre el vector de valoraciones de dos usuarios[3].
+\textbf{Relación Usuario-Usuario}: se define como las relaciones sociales entre usuarios y se ha utilizado tempranamente en muchos recomendadores. Se calcula como la simulitud de coseno entre el vector de valoraciones de dos usuarios[11].
 
 \textbf{Relación Usuario-Localidad}: es una característica indispensable utilizada en todos los sistemas de recomendación. En el sistema, en lugar de usar calificaciones simples directamente, se combinan con la popularidad del artículo para determinar el peso entre el usuario y el artículo. Los clientes se dejan influenciar fácilmente por los comportamientos de los demás. Por lo tanto, se consifera que, los usuarios son más propensos a pasar al artículo con mayor popularidad, y el peso entre usuario y artículo se puede definir como: \\
 $rel_{u,v} = f_{rating}(u,v) + f_{review}(v)$
@@ -113,7 +128,7 @@ Después de construir el modelo 3R, el problema de clasificar las ubicaciones pa
 
 $r_{i+1} = c*M*r_i + (1-c)*E$
 
-donde: (1-c) es la probabilidad de regresar al nodo inicial, M es la matriz resultante del análisis colaborativo y E es un vector de tamaño $|U|+|V|$ con todas sus componentes 0 a excepción de la componete inicial que es 1, $r_i$ es un vector de tamaño $|U|+|V|$ donde en la posición x denota la probabilidad de transicionar del nodo actual al nodo x en la iteración i-ésima del RWR. [2]
+donde: (1-c) es la probabilidad de regresar al nodo inicial, M es la matriz resultante del análisis colaborativo y E es un vector de tamaño $|U|+|V|$ con todas sus componentes 0 a excepción de la componete inicial que es 1, $r_i$ es un vector de tamaño $|U|+|V|$ donde en la posición x denota la probabilidad de transicionar del nodo actual al nodo x en la iteración i-ésima del RWR. [10]
 
 El recorrido consiste en apoyarse en esta fórmula para en una iteración para decidir a que nodo moverse y generar un nuevo vector $r_{i+1}$ para apoyar a la selección del nodo en la iteración siguiente. Finalmente, al terminar las iteraciones podemos utilizar el vector $r_i$ final para ordenar todos los nodos visitados que sean localidades y devolver al usuario los $k$ más recomendados.
 
@@ -121,13 +136,6 @@ La intuición de realizar RWR en el modelo 3R es que para un viajero específico
 
 
 \section{Experimentos}
-Se realizaron experimientos para evaluar el modelo usando un conjunto de datos del mundo real:
-
-\begin{itemize}
-    \item \textbf{\textit{Indonesia Tourism Destination}[5]:}  contiene varias atracciones turísticas en 5 ciudades principales de Indonesia
-\end{itemize}
-
-
 Para la evaluación, se utiliza el enfoque estándar para dividir el conjunto de datos en dos partes: las ciudades de entrenamiento y la ciudad de prueba.Se seleccionan 100 usuarios que hayan visitado la ciudad de prueba y al menos otra ciudad de entrenamiento como usuarios de prueba. Solo se tienen en cuenta a los usuarios que han visitado al menos 5 ubicaciones en las ciudades de entrenamiento para asegurar que los usuarios de prueba hayan proporcionado una cantidad decente de información de preferencias. A continuación, se filtran las atracciones turísticas que los usuarios de prueba han visitado en la ciudad de prueba (lo que hace que parezca que los usuarios de prueba nunca han estado en la ciudad de prueba).
 
 \subsection{Métricas}
@@ -164,7 +172,7 @@ La MRR@10, con un valor de 0.1995, y el nDCG@10 de 0.2008, indican que, aunque l
 Teniendo en cuenta que el sistema es ligero y fácil de entender, evitando métodos complejos o no transparentes, estas métricas reflejan un equilibrio entre simplicidad y funcionalidad. La transparencia y la accesibilidad del sistema facilitan su uso y comprensión, lo que añade valor a pesar de las limitaciones en precisión.
 
 \section{Conclusiones}
-El sistema de recomendación híbrido propuesto demuestra ser efectivo para personalizar recomendaciones de viajes, combinando reglas basadas en conocimiento con análisis de grafos y métodos colaborativos. Aunque la precisión del sistema puede mejorar, ofrece un buen rendimiento en la recuperación de elementos relevantes, destacando su capacidad para generar sugerencias útiles. El enfoque equilibrado entre simplicidad y funcionalidad hace que el sistema sea accesible y fácil de usar, lo que lo convierte en una herramienta intersante para la planificación de viajes en contextos reales.
+El sistema de recomendación híbrido propuesto demuestra ser efectivo para personalizar recomendaciones de viajes, combinando reglas basadas en conocimiento con análisis de grafos y métodos colaborativos. Aunque la precisión del sistema puede mejorar, ofrece un buen rendimiento en la recuperación de elementos \\ relevantes, destacando su capacidad para generar sugerencias útiles. El enfoque equilibrado entre simplicidad y funcionalidad hace que el sistema sea accesible y fácil de usar, lo que lo convierte en una herramienta valiosa para la planificación de viajes en contextos reales.
 
 
 \begin{thebibliography}{8}
@@ -173,18 +181,12 @@ El sistema de recomendación híbrido propuesto demuestra ser efectivo para pers
 Jannach, D., Zanker, M., Felfernig, A., Friedrich, G.: Recommender Systems: An Introduction. Cambridge University Press, New York (2011)
 
 \bibitem{ref_article1}
-Guo, L., Shao, J., Tan, K.-L., Yang, Y.: WhereToGo: Personalized Travel Recommendation for Individuals and Groups. In: 15th International Conference on Mobile Data Management, pp. 49--58. IEEE (2014). \doi{10.1109/MDM.2014.12}
-
-\bibitem{ref_article2}
-Chen, Z., Hu, A., Xu, J., Liu, C. H.: DineTogether: A Social-Aware Group Sequential Recommender System. In: TRIDENTCOM 2017, Dalian, People's Republic of China. EAI, 2018. \doi{10.4108/eai.8-1-2018.155564}
-
-\bibitem{ref_article3}
 Abowd, G. D., Atkeson, C. G., Hong, J. I., Long, S., Kooper, R., Pinkerton, M.: Cyberguide: A mobile context-aware tour guide. Wireless Networks \textbf{3}(5), 421--433 (1997)
 
 \bibitem{ref_proc1}
 Kim, J., Kim, H., Ryu, J. Hee: Triptip: a trip planning service with tag-based recommendation. In: CHI Extended Abstracts, pp. 3467--3472. ACM, New York (2009)
 
-\bibitem{ref_article4}
+\bibitem{ref_article2}
 Clements, M., Serdyukov, P., de Vries, A. P., Reinders, M. J. T.: Personalised travel recommendation based on location co-occurrence. CoRR \textbf{abs/1106.5213} (2011)
 
 \bibitem{ref_proc2}
@@ -195,6 +197,25 @@ Ye, M., Yin, P., Lee, W.-C., Lee, D. L.: Exploiting geographical influence for c
 
 \bibitem{ref_proc4}
 Lovász, L.: Random walks on graphs: A survey. In: Combinatorics, Paul Erdös is Eighty, vol. 2, pp. 353--397. József Határ, Budapest (1996)
+
+\bibitem{ref_proc5}
+Konstas, I., Stathopoulos, V., Jose, J. M.: On social networks and collaborative recommendation. In: SIGIR, pp. 195--202. ACM, New York (2009)
+
+\bibitem{ref_proc6}
+Noulas, A., Scellato, S., Lathia, N., Mascolo, C.: A random walk around the city: New venue recommendation in location-based social networks. In: SocialCom ’12, pp. 144--153. IEEE (2012)
+
+\bibitem{ref_article3}
+Guo, L., Shao, J., Tan, K.-L., Yang, Y.: WhereToGo: Personalized Travel Recommendation for Individuals and Groups. In: 15th International Conference on Mobile Data Management, pp. 49--58. IEEE (2014). \doi{10.1109/MDM.2014.12}
+
+\bibitem{ref_article4}
+Chen, Z., Hu, A., Xu, J., Liu, C. H.: DineTogether: A Social-Aware Group Sequential Recommender System. In: TRIDENTCOM 2017, Dalian, People's Republic of China. EAI, 2018. \doi{10.4108/eai.8-1-2018.155564}
+
+
+
+
+
+
+
 
 \end{thebibliography}
 \end{document}
